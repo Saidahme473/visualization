@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Documentation</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    #wrapper {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h3, h4 {
+      color: #004080;
+      margin-top: 30px;
+    }
+
+    p, ul {
+      line-height: 1.6;
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+
+    img {
+      max-width: 100%;
+      margin: 15px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 30px;
+      justify-content: center;
+    }
+
+    .button-group a {
+      padding: 12px 20px;
+      text-decoration: none;
+      background-color: #0066cc;
+      color: white;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+    }
+
+    .button-group a:hover {
+      background-color: #004d99;
+    }
+
+    .svg-preview {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="wrapper">
+    <div class="button-group">
+      <a href="index.html">⬅ Back to Main Page</a>
+      <a href="causes_of_death.json" download>📥 Download Data</a>
+      <a href="https://www.kaggle.com/datasets/willianoliveiragibin/annual-cause-death-numbers" target="_blank">🔍 View Source Data</a>
+    </div>
+
+    <div id="description">
+      <h3>Documentation</h3>
+
+      <h4>Design Process</h4>
+      <p>The design process began with exploratory data analysis of the causes-of-death dataset to understand its structure, including the columns for year, country, and death counts by cause. I sketched a few layout ideas by hand, initially considering pie charts and stacked bar charts. However, these early designs proved limiting in terms of scalability and comparative clarity.</p>
+      <p>After researching common D3.js patterns and assessing user interactivity needs, I narrowed the visualization types to three core formats: bar chart (for year-specific comparisons), line chart (to observe trends over time), and scatterplot (for pattern recognition without imposing order). These decisions were driven by a desire to let users explore the data from multiple perspectives in an intuitive and engaging way.</p>
+      <img src="sketch.jpg" alt="Sketches of Design Ideas">
+
+      <h4>Design Rationale</h4>
+      <p><strong>Color Scheme:</strong> I used a sequential blue color scale (d3.interpolateBlues) to encode value magnitude. This choice was made to maintain consistency across visualization types while clearly differentiating low and high death counts.</p>
+      <p><strong>Layout & Controls:</strong> Dropdown menus allow users to dynamically select the country, year, and visualization type. This approach supports user-driven inquiry and accommodates a wide range of comparative scenarios. Axis labels and tooltips ensure interpretability. Labels on the x-axis were rotated to prevent text overlap, especially for cause-of-death names.</p>
+      <p><strong>Chart Types:</strong></p>
+      <ul>
+        <li><strong>Bar Chart:</strong> Ideal for comparing top causes within a specific country and year.</li>
+        <li><strong>Line Chart:</strong> Useful for observing how certain causes trend across time.</li>
+        <li><strong>Scatterplot:</strong> Designed for identifying value clusters or outliers without the constraint of order.</li>
+      </ul>
+
+      <h4>Findings and Insights</h4>
+      <p>Using this tool, I was able to surface interesting public health patterns:</p>
+      <ul>
+        <li>Heart disease consistently appears as a top cause of death across many countries, regardless of income level. This pattern was most obvious in both the USA and India when exploring data for 2019.</li>
+        <li>In some years, sudden spikes in certain causes (e.g., respiratory infections or liver diseases) were evident, suggesting the impact of outbreaks or changes in public health policy.</li>
+        <li>The scatterplot helped reveal clustering patterns—for instance, developing countries often showed similar distributions of causes such as diarrheal diseases and tuberculosis, especially in earlier years like 2000–2005.</li>
+      </ul>
+
+      <p><strong>Example Visualization:</strong></p>
+      <p>Below is a screenshot showing the top 10 causes of death in the USA in 2019 as a bar chart:</p>
+      <img src="USA2019.jpg" alt="Bar Chart USA 2019">
+
+      <p>This visualization project supports discovery and storytelling through data. It highlights health disparities, trends over time, and global similarities in public health challenges. By enabling user interaction, it encourages deeper exploration and potentially sparks new questions and hypotheses.</p>
+
+      <p>Watch the full demo walkthrough on <a href="#">YouTube</a>.</p><section id="video" style="margin-top: 40px;">
+    <h3 style="text-align: center; color: #1e40af;">Demo Video</h3>
+    <div style="display: flex; justify-content: center; margin-top: 20px;">
+      <iframe width="800" height="450" 
+              src="https://www.youtube.com/embed/YOUR_VIDEO_ID" 
+              title="Causes of Death Visualization Demo"
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+              allowfullscreen
+              style="border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
+      </iframe>
+    </div>
+  </section>
+    </div>
+  </div>
+
+  
+  
+</body>
+</html>

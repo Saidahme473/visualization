@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Causes of Death Visualization</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      color: #1f2937;
+    }
+
+    nav {
+      background-color: #1e40af;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 20px;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #dbeafe;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 2rem;
+      color: #111827;
+      margin-bottom: 10px;
+    }
+
+    #about {
+      background: #fff;
+      padding: 25px 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+      margin-bottom: 30px;
+    }
+
+    #about h3 {
+      text-align: center;
+      color: #1e40af;
+    }
+
+    #about p {
+      line-height: 1.6;
+    }
+
+    label {
+      margin-right: 20px;
+      font-weight: 600;
+    }
+
+    select, button {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background-color: #fff;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+
+    button#download {
+      background-color: #1e40af;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button#download:hover {
+      background-color: #3749a6;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    svg {
+      display: block;
+      margin: auto;
+      background-color: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .tooltip {
+      position: absolute;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 8px;
+      font-size: 13px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .bar, .dot {
+      cursor: pointer;
+    }
+
+    .bar:hover, .dot:hover {
+      fill: #fb923c;
+    }
+
+    .dot {
+      stroke: white;
+      stroke-width: 1.5px;
+    }
+
+    .chart-title {
+      font-size: 18px;
+      font-weight: 600;
+      fill: #1f2937;
+    }
+
+    footer {
+      text-align: center;
+      background-color: #f1f5f9;
+      padding: 20px;
+      font-size: 14px;
+      color: #6b7280;
+      margin-top: 50px;
+    }
+
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="#">Home</a>
+    <a href="documentation.html">Project Documentation</a>
+  </nav>
+
+  <div class="container">
+    <h2>Causes of Death by Country and Year</h2>
+
+    <div id="about">
+      <h3>About</h3>
+      <p>This interactive visualization showcases the top 10 causes of death across countries and years. Users can explore different visualization types to uncover patterns and insights from the dataset.</p>
+      <p>Watch the demo on <a href="#">YouTube</a>.<br>
+      <a href="https://www.kaggle.com/datasets/willianoliveiragibin/annual-cause-death-numbers" target="_blank">🔍 View Source Data</a></p>
+    </div>
+
+    <div class="controls">
+      <label>Country:
+        <select id="country"></select>
+      </label>
+      <label>Year:
+        <select id="year"></select>
+      </label>
+      <label>Visualization:
+        <select id="visType">
+          <option value="bar">Bar Chart</option>
+          <option value="line">Line Chart</option>
+          <option value="scatter">Scatterplot</option>
+        </select>
+      </label>
+      <button id="download">Download Chart</button>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+    <svg width="900" height="500"></svg>
+    <div id="description"></div>
+  </div>
+
+  <footer>
+    &copy; 2025 Said Ahmed — Causes of Death Visualization Project
+  </footer>
+
+  <!-- Your D3.js script remains unchanged below this point -->
+  <script>
+    const svg = d3.select("svg"),
+          margin = {top: 30, right: 30, bottom: 100, left: 60},
+          width = +svg.attr("width") - margin.left - margin.right,
+          height = +svg.attr("height") - margin.top - margin.bottom,
+          chart = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const countrySelect = d3.select("#country");
+    const yearSelect = d3.select("#year");
+    const visTypeSelect = d3.select("#visType");
+    const tooltip = d3.select("#tooltip");
+
+    d3.json("causes_of_death.json").then(data => {
+      const countries = [...new Set(data.map(d => d.Entity))].sort();
+      const years = [...new Set(data.map(d => d.Year))].sort((a, b) => a - b);
+
+      countrySelect.selectAll("option")
+        .data(countries)
+        .enter().append("option")
+        .text(d => d);
+
+      yearSelect.selectAll("option")
+        .data(years)
+        .enter().append("option")
+        .text(d => d);
+
+      countrySelect.on("change", updateChart);
+      yearSelect.on("change", updateChart);
+      visTypeSelect.on("change", updateChart);
+
+      function updateChart() {
+        const selectedCountry = countrySelect.node().value;
+        const selectedYear = +yearSelect.node().value;
+        const visType = visTypeSelect.node().value;
+
+        const entry = data.find(d => d.Entity === selectedCountry && d.Year === selectedYear);
+        if (!entry) return;
+
+        const top10 = entry.data.sort((a, b) => b.value - a.value).slice(0, 10);
+
+        chart.selectAll(".bar, .dot, .line, .axis, .x-axis, .y-axis, .chart-title, .axis-label").remove();
+
+        const x = d3.scaleBand()
+          .domain(top10.map(d => d.cause))
+          .range([0, width])
+          .padding(0.1);
+
+        const xLine = d3.scalePoint()
+          .domain(top10.map(d => d.cause))
+          .range([0, width]);
+
+        const y = d3.scaleLinear()
+          .domain([0, d3.max(top10, d => d.value)])
+          .nice()
+          .range([height, 0]);
+
+        const colorScale = d3.scaleSequential(d3.interpolateBlues)
+          .domain([0, d3.max(top10, d => d.value)]);
+
+        const xAxis = visType === "bar" ? d3.axisBottom(x) : d3.axisBottom(xLine);
+
+        chart.append("g")
+          .attr("class", "axis x-axis")
+          .attr("transform", `translate(0,${height})`)
+          .call(xAxis)
+          .selectAll("text")
+            .attr("transform", "rotate(-40)")
+            .style("text-anchor", "end");
+
+        chart.append("g")
+          .attr("class", "axis y-axis")
+          .call(d3.axisLeft(y));
+
+        chart.append("text")
+          .attr("class", "chart-title")
+          .attr("x", width / 2)
+          .attr("y", -10)
+          .attr("text-anchor", "middle")
+          .style("font-size", "16px")
+          .text(`Top 10 Causes of Death in ${selectedCountry} (${selectedYear})`);
+
+        if (visType === "bar") {
+          chart.selectAll(".bar")
+            .data(top10)
+            .enter().append("rect")
+              .attr("class", "bar")
+              .attr("x", d => x(d.cause))
+              .attr("y", height)
+              .attr("width", x.bandwidth())
+              .attr("height", 0)
+              .attr("fill", d => colorScale(d.value))
+              .on("mouseover", (event, d) => showTooltip(event, d))
+              .on("mousemove", event => moveTooltip(event))
+              .on("mouseout", hideTooltip)
+            .transition().duration(750)
+              .attr("y", d => y(d.value))
+              .attr("height", d => height - y(d.value));
+
+        } else if (visType === "line") {
+          const line = d3.line()
+            .x(d => xLine(d.cause))
+            .y(d => y(d.value));
+
+          chart.append("path")
+            .datum(top10)
+            .attr("class", "line")
+            .attr("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 2)
+            .attr("d", line);
+
+          chart.selectAll(".dot")
+            .data(top10)
+            .enter().append("circle")
+              .attr("class", "dot")
+              .attr("cx", d => xLine(d.cause))
+              .attr("cy", d => y(d.value))
+              .attr("r", 5)
+              .attr("fill", d => colorScale(d.value))
+              .on("mouseover", (event, d) => showTooltip(event, d))
+              .on("mousemove", event => moveTooltip(event))
+              .on("mouseout", hideTooltip);
+
+        } else if (visType === "scatter") {
+          chart.selectAll(".dot")
+            .data(top10)
+            .enter().append("circle")
+              .attr("class", "dot")
+              .attr("cx", d => xLine(d.cause))
+              .attr("cy", d => y(d.value))
+              .attr("r", 6)
+              .attr("fill", d => colorScale(d.value))
+              .on("mouseover", (event, d) => showTooltip(event, d))
+              .on("mousemove", event => moveTooltip(event))
+              .on("mouseout", hideTooltip);
+        }
+      }
+
+      function showTooltip(event, d) {
+        tooltip.style("opacity", 1)
+               .html(`<strong>${d.cause}</strong><br/>${d.value}`);
+      }
+
+      function moveTooltip(event) {
+        tooltip.style("left", `${event.pageX + 10}px`)
+               .style("top", `${event.pageY - 20}px`);
+      }
+
+      function hideTooltip() {
+        tooltip.style("opacity", 0);
+      }
+
+      d3.select("#download").on("click", () => {
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(svg.node());
+        const blob = new Blob([svgString], {type: "image/svg+xml;charset=utf-8"});
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "chart.svg";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      });
+
+      countrySelect.property("value", countries[0]);
+      yearSelect.property("value", years[0]);
+      updateChart();
+    });
+  </script>
+</body>
+</html>
